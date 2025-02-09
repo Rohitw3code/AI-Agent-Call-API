@@ -49,6 +49,5 @@ if tool_calls:
         if tool_name in function_map:
             print("tool name : ",tool_name)
             result = function_map[tool_name](**tool_arguments)  # Call the mapped function with arguments
-            print(f"Result: {result} ")
         else:
             print(f"Function '{tool_name}' is not implemented.")
