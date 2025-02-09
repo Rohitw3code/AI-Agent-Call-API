@@ -1,3 +1,4 @@
+from custom_tool.tool import Tool
 from utils import endpoint_request
 
 
@@ -17,35 +18,12 @@ class ConfigArchive:
         endpoint_request(url, {}, "GET")
 
 
-import_config_tool = {
-    "type": "function",
-    "function": {
-            "name": "import_config",
-            "description": "import config archive",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                },
-                "additionalProperties": False
-            },
-        "strict": True
-    }
-}
+import_config_tool = Tool(name="import_config",
+                          desc="import config archive").get_tool()
 
-export_config_tool = {
-    "type": "function",
-    "function": {
-            "name": "export_config",
-            "description": "export config archive",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                },
-                "additionalProperties": False
-            },
-        "strict": True
-    }
-}
+export_config_tool = Tool(name="export_config",
+                          desc="export config archive").get_tool()
+
 
 config_archive_tools = [import_config_tool,
                         export_config_tool]

@@ -16,7 +16,7 @@ function_map = {
 }
 
 
-
+ 
 tools = []
 tools.extend(config_archive_tools)
 tools.extend(connection_meta_tools)
@@ -44,10 +44,7 @@ tool_calls = ask_gpt('import config')
 if tool_calls:
     for tool_call in tool_calls:
         tool_name = tool_call.function.name
-        tool_arguments = json.loads(tool_call.function.arguments)
-
-
-    
+        tool_arguments = json.loads(tool_call.function.arguments)    
         # Dynamically call the appropriate function
         if tool_name in function_map:
             print("tool name : ",tool_name)
