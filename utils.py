@@ -1,3 +1,4 @@
+import streamlit as st
 from credentials import HOST, USERNAME, PASSWORD, BASE_URL, HEADERS
 from typing import Dict
 import requests
@@ -22,9 +23,14 @@ def endpoint_request(url='', PARAM=False, DATA=False, req_type='GET'):
         elif req_type == 'DELETE':
             response = requests.delete(url, params=param, headers=HEADERS, auth=(USERNAME, PASSWORD), verify=False)
         else:
-            return "ERROR: Invalid request type"
+            error_msg = "ERROR: Invalid request type"
+            st.error(error_msg)
+            return error_msg
         
-        response.raise_for_status()  
-        return response.json()  
+        response.raise_for_status()
+        st.success("Request completed successfully!")  # Success message
+        return response.json()
     except requests.exceptions.RequestException as e:
-        return f"ERROR: {str(e)}"
+        error_msg = f"ERROR: {str(e)}"
+        st.error(error_msg)  # Display error in Streamlit
+        return error_msg
