@@ -1,0 +1,33 @@
+# Ignore node_modules and build folder
+frontend/node_modules/
+frontend/build/
+
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# Dependency directories
+frontend/.pnp/
+frontend.pnp.cjs
+
+# Editor directories and files
+frontend/.vscode/
+frontend/.idea/
+frontend/.DS_Store
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Misc
+frontend/.cache/
+frontend/.next/
+frontend/out/
+frontend/dist/
+
+# Ignore lock files if necessary
+frontend/package-lock.json
+frontend/yarn.lock
+frontend/pnpm-lock.yaml

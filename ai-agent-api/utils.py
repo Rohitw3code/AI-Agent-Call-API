@@ -5,16 +5,10 @@ import requests
 
 
 
-def endpoint_request(url='', PARAM=False, DATA=False, req_type='GET'):  
+def endpoint_request(url='', param={}, data={}, req_type='GET'):  
     url = BASE_URL + url
 
-    # param = PARAM if PARAM else {} 
-    # data = DATA if DATA else {}  
-
-    param = {}
-    data = {}
-
-    # print("Endpoint URL:", url)
+    print("Endpoint URL:", url)
     # print("Data:", data)
     # print("Param:", param)
 
