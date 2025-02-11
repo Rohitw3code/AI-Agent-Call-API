@@ -20,7 +20,7 @@ class ConnectionMetabody:
 
     @staticmethod
     def export_metabody():
-        endpoint_request(
+        return endpoint_request(
             url=ConnectionMetabody.export_metabody_data['url'],
             DATA=ConnectionMetabody.export_metabody_data['data'],
             req_type=ConnectionMetabody.export_metabody_data['req_type']
@@ -28,7 +28,7 @@ class ConnectionMetabody:
 
     @staticmethod
     def convert_metabody():
-        endpoint_request(
+        return endpoint_request(
             url=ConnectionMetabody.convert_metabody_data['url'],
             DATA=ConnectionMetabody.convert_metabody_data['data'],
             req_type=ConnectionMetabody.convert_metabody_data['req_type']

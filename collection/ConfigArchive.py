@@ -18,7 +18,7 @@ class ConfigArchive:
 
     @staticmethod
     def import_config():
-        endpoint_request(
+        return endpoint_request(
             url=ConfigArchive.import_config_data['url'],
             PARAM=ConfigArchive.import_config_data['param'],
             req_type=ConfigArchive.import_config_data['req_type']
@@ -26,7 +26,7 @@ class ConfigArchive:
 
     @staticmethod
     def export_config():
-        endpoint_request(
+        return endpoint_request(
             url=ConfigArchive.export_config_data['url'],
             req_type=ConfigArchive.export_config_data['req_type']
         )

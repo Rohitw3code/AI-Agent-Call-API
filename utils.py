@@ -29,13 +29,10 @@ def endpoint_request(url='', PARAM=False, DATA=False, req_type='GET'):
             response = requests.delete(url, params=param, headers=HEADERS, auth=(USERNAME, PASSWORD), verify=False)
         else:
             error_msg = "ERROR: Invalid request type"
-            st.error(error_msg)
-            # return error_msg
+            return error_msg
         
         response.raise_for_status()
-        st.success("Request completed successfully!")  # Success message
         return response.json()
     except requests.exceptions.RequestException as e:
         error_msg = f"ERROR: {str(e)}"
-        st.error(error_msg)  # Display error in Streamlit
-        # return error_msg
+        return error_msg
