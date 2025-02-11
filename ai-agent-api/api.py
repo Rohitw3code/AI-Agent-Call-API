@@ -35,16 +35,15 @@ def ask_gpt(msg):
     if tool_call:
         tool_name = tool_call[0].function.name
         meta_data = function_map.get(tool_name, [None, None, None])[2]
-        return {"tool_name": tool_name, "meta_data": meta_data}
+        return {"tool_name": tool_name, "meta_data": meta_data,"success":True}
     
-    return {"error": "No tool call found"}
+    return {"error": "No tool call found","success":True}
 
 @app.route('/ask_gpt', methods=['POST'])
 def handle_ask_gpt():
     data = request.get_json()
     user_query = data.get("query", "")
     response = ask_gpt(user_query)
-    print("resp : ",response)
     return jsonify(response)
 
 @app.route('/execute_tool', methods=['POST'])
@@ -57,18 +56,18 @@ def execute_tool():
         try:
             tool_arguments = json.loads(tool_arguments)
         except json.JSONDecodeError:
-            return jsonify({"error": "Invalid JSON format in arguments"})
+            return jsonify({"error": "Invalid JSON format in arguments","success":False})
     
     if not isinstance(tool_arguments, dict):
-        return jsonify({"error": "Arguments must be a dictionary"})
+        return jsonify({"error": "Arguments must be a dictionary","success":False})
     
     if tool_name in function_map:
         class_name, function, _ = function_map[tool_name]            
         print("tool argument : ",tool_arguments)
         result = function(**tool_arguments)
-        return jsonify({"result": result})
+        return jsonify({"result": result,"success":False})
     
-    return jsonify({"error": "Invalid tool name"})
+    return jsonify({"error": "Invalid tool name","success":False})
 
 if __name__ == '__main__':
     app.run(debug=True)

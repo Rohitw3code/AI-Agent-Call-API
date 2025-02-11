@@ -1,5 +1,5 @@
 import React, { useState, FormEvent, useRef, useEffect } from 'react';
-import { Send, Play, Bot, User } from 'lucide-react';
+import { Send, Play, Bot, User, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 
 interface Arguments {
   param: Record<string, any>;
@@ -17,10 +17,13 @@ interface AskResponse {
   meta_data: MetaData;
   success: boolean;
   tool_name: string;
+  error?: string;
 }
 
 interface ExecuteResponse {
   result: string;
+  success: boolean;
+  error?: string;
 }
 
 interface Message {
@@ -29,6 +32,7 @@ interface Message {
   response?: AskResponse;
   executeResponse?: ExecuteResponse;
   editedMetaData?: MetaData;
+  error?: boolean;
 }
 
 function App() {
@@ -36,10 +40,11 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([
     {
       type: 'bot',
-      content: 'Postman Collection demonstrating how to use the PingFederate Admin REST API. Note, this collection was built against PingFederate v9.3.0. More information about the PingFederate Admin API can be found on support.pingidentity.com.'
+      content: 'Welcome to PingFederate Admin API Assistant! How can I help you today?'
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -84,16 +89,18 @@ function App() {
       
       const botMessage: Message = {
         type: 'bot',
-        content: 'I found a relevant tool that might help:',
+        content: data.success ? 'I found a relevant tool that might help:' : `Error: ${data.error || 'An unexpected error occurred'}`,
         response: data,
-        editedMetaData: { ...data.meta_data }
+        editedMetaData: data.success ? { ...data.meta_data } : undefined,
+        error: !data.success
       };
 
       setMessages(prev => [...prev, botMessage]);
     } catch (err) {
       const errorMessage: Message = {
         type: 'bot',
-        content: `Error: ${err instanceof Error ? err.message : 'An error occurred'}`
+        content: `Error: ${err instanceof Error ? err.message : 'An error occurred'}`,
+        error: true
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -127,15 +134,17 @@ function App() {
 
       const executionMessage: Message = {
         type: 'bot',
-        content: 'Tool execution result:',
-        executeResponse: data
+        content: data.success ? 'Tool execution result:' : `Error: ${data.error || 'Tool execution failed'}`,
+        executeResponse: data,
+        error: !data.success
       };
 
       setMessages(prev => [...prev, executionMessage]);
     } catch (err) {
       const errorMessage: Message = {
         type: 'bot',
-        content: `Error: ${err instanceof Error ? err.message : 'An error occurred'}`
+        content: `Error: ${err instanceof Error ? err.message : 'An error occurred'}`,
+        error: true
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -219,6 +228,17 @@ function App() {
     });
   };
 
+  const toggleSection = (messageId: number, section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [`${messageId}-${section}`]: !prev[`${messageId}-${section}`]
+    }));
+  };
+
+  const isSectionExpanded = (messageId: number, section: string) => {
+    return expandedSections[`${messageId}-${section}`] ?? false;
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-4xl mx-auto h-screen flex flex-col">
@@ -234,10 +254,12 @@ function App() {
             <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`flex gap-3 max-w-[80%] ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  message.type === 'user' ? 'bg-blue-600' : 'bg-gray-600'
+                  message.type === 'user' ? 'bg-blue-600' : message.error ? 'bg-red-600' : 'bg-gray-600'
                 }`}>
                   {message.type === 'user' ? (
                     <User className="w-5 h-5 text-white" />
+                  ) : message.error ? (
+                    <AlertCircle className="w-5 h-5 text-white" />
                   ) : (
                     <Bot className="w-5 h-5 text-white" />
                   )}
@@ -246,26 +268,27 @@ function App() {
                   <div className={`p-4 rounded-lg ${
                     message.type === 'user' 
                       ? 'bg-blue-600 text-white' 
+                      : message.error
+                      ? 'bg-red-50 border border-red-200 text-red-800'
                       : 'bg-white shadow-md'
                   }`}>
                     <p>{message.content}</p>
                   </div>
 
-                  {message.response && (
+                  {message.response && message.response.success && (
                     <div className="bg-white rounded-lg shadow-md p-4 space-y-3">
                       <div className="grid grid-cols-2 gap-3">
                         <div className="bg-gray-50 p-3 rounded">
                           <p className="text-sm font-medium text-gray-500">Tool Name</p>
                           <p className="font-semibold">{message.response.tool_name}</p>
                         </div>
-                        <div className="bg-gray-50 p-3 rounded">
-                          <p className="text-sm font-medium text-gray-500">Success</p>
-                          <p className="font-semibold">{message.response.success ? 'Yes' : 'No'}</p>
+                        <div className="bg-green-50 p-3 rounded">
+                          <p className="text-sm font-medium text-green-700">Status</p>
+                          <p className="font-semibold text-green-800">Ready to Execute</p>
                         </div>
                       </div>
                       
                       <div className="bg-gray-50 p-3 rounded">
-                        <p className="text-sm font-medium text-gray-500 mb-2">Meta Data</p>
                         <div className="grid grid-cols-2 gap-2 text-sm mb-3">
                           <div>
                             <p className="text-gray-500">Request Type</p>
@@ -273,32 +296,64 @@ function App() {
                           </div>
                           <div>
                             <p className="text-gray-500">URL</p>
-                            <p className="font-medium">{message.response.meta_data.url}</p>
+                            <p className="font-medium break-all">{message.response.meta_data.url}</p>
                           </div>
                         </div>
 
                         {message.editedMetaData && !isObjectEmpty(message.editedMetaData.param) && (
                           <div className="border-t border-gray-200 pt-3">
-                            <p className="text-sm font-medium text-gray-500 mb-2">Parameters</p>
-                            <div className="space-y-2">
-                              {renderJsonEditor(message.editedMetaData.param, index, 'param')}
-                            </div>
+                            <button
+                              onClick={() => toggleSection(index, 'param')}
+                              className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+                                isSectionExpanded(index, 'param')
+                                  ? 'text-blue-600'
+                                  : 'text-gray-500 hover:text-blue-600'
+                              }`}
+                            >
+                              {isSectionExpanded(index, 'param') ? (
+                                <ChevronUp className="w-4 h-4" />
+                              ) : (
+                                <ChevronDown className="w-4 h-4" />
+                              )}
+                              Parameters
+                            </button>
+                            {isSectionExpanded(index, 'param') && (
+                              <div className="mt-2 space-y-2">
+                                {renderJsonEditor(message.editedMetaData.param, index, 'param')}
+                              </div>
+                            )}
                           </div>
                         )}
 
                         {message.editedMetaData && !isObjectEmpty(message.editedMetaData.data) && (
                           <div className="border-t border-gray-200 pt-3">
-                            <p className="text-sm font-medium text-gray-500 mb-2">Data</p>
-                            <div className="space-y-2">
-                              {renderJsonEditor(message.editedMetaData.data, index, 'data')}
-                            </div>
+                            <button
+                              onClick={() => toggleSection(index, 'data')}
+                              className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+                                isSectionExpanded(index, 'data')
+                                  ? 'text-blue-600'
+                                  : 'text-gray-500 hover:text-blue-600'
+                              }`}
+                            >
+                              {isSectionExpanded(index, 'data') ? (
+                                <ChevronUp className="w-4 h-4" />
+                              ) : (
+                                <ChevronDown className="w-4 h-4" />
+                              )}
+                              Data
+                            </button>
+                            {isSectionExpanded(index, 'data') && (
+                              <div className="mt-2 space-y-2">
+                                {renderJsonEditor(message.editedMetaData.data, index, 'data')}
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
 
                       <button
                         onClick={() => handleExecute(message.response.tool_name, index)}
-                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 flex items-center gap-2 justify-center"
+                        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center gap-2 justify-center"
                         disabled={isLoading}
                       >
                         <Play className="w-4 h-4" />
@@ -308,8 +363,12 @@ function App() {
                   )}
 
                   {message.executeResponse && (
-                    <div className="bg-white rounded-lg shadow-md p-4">
-                      <p className="text-gray-900">{message.executeResponse.result}</p>
+                    <div className={`rounded-lg shadow-md p-4 ${
+                      message.error 
+                        ? 'bg-red-50 border border-red-200 text-red-800' 
+                        : 'bg-green-50 border border-green-200 text-green-800'
+                    }`}>
+                      <p>{message.executeResponse.result}</p>
                     </div>
                   )}
                 </div>
