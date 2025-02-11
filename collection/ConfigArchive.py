@@ -4,20 +4,23 @@ from utils import endpoint_request
 class ConfigArchive:
     import_config_data = {
         'url': "/configArchive/import",
-        'PARAM': True,
-        'req_type': "POST"
+        'param': True,
+        'req_type': "POST",
+        'data':False
     }
 
     export_config_data = {
         'url': "/configArchive/export",
-        'req_type': "GET"
+        'req_type': "GET",
+        'param':False,
+        'data':False
     }
 
     @staticmethod
     def import_config():
         endpoint_request(
             url=ConfigArchive.import_config_data['url'],
-            PARAM=ConfigArchive.import_config_data['PARAM'],
+            PARAM=ConfigArchive.import_config_data['param'],
             req_type=ConfigArchive.import_config_data['req_type']
         )
 

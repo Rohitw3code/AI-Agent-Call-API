@@ -3,15 +3,20 @@ from credentials import HOST, USERNAME, PASSWORD, BASE_URL, HEADERS
 from typing import Dict
 import requests
 
+
+
 def endpoint_request(url='', PARAM=False, DATA=False, req_type='GET'):  
     url = BASE_URL + url
 
-    param = PARAM if PARAM else {} 
-    data = DATA if DATA else {}  
+    # param = PARAM if PARAM else {} 
+    # data = DATA if DATA else {}  
 
-    print("Endpoint URL:", url)
-    print("Data:", data)
-    print("Param:", param)
+    param = {}
+    data = {}
+
+    # print("Endpoint URL:", url)
+    # print("Data:", data)
+    # print("Param:", param)
 
     try:
         if req_type == 'GET':
@@ -25,7 +30,7 @@ def endpoint_request(url='', PARAM=False, DATA=False, req_type='GET'):
         else:
             error_msg = "ERROR: Invalid request type"
             st.error(error_msg)
-            return error_msg
+            # return error_msg
         
         response.raise_for_status()
         st.success("Request completed successfully!")  # Success message
@@ -33,4 +38,4 @@ def endpoint_request(url='', PARAM=False, DATA=False, req_type='GET'):
     except requests.exceptions.RequestException as e:
         error_msg = f"ERROR: {str(e)}"
         st.error(error_msg)  # Display error in Streamlit
-        return error_msg
+        # return error_msg

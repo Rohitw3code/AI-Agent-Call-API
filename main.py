@@ -42,11 +42,37 @@ if user_input:
             
             if tool_name in function_map:
                 class_name, function, meta_data = function_map[tool_name]
+
+                print('meta_data : ',meta_data)
+
+                # if meta_data['param']:
+                #     param_input = st.text_area("Enter Params (JSON format)", "{}")
+                #     try:
+                #         param = json.loads(param_input)
+                #         if not param:
+                #             print("param : ",param)
+                #             execute_request = False
+                #             st.warning("Params cannot be empty if included.")
+                #         else:
+                #             print("loaded param : ",param)
+                #     except json.JSONDecodeError as e:
+                #         st.error(f"Invalid JSON format for Params: {e}")
+
+                # if meta_data['data']:
+                #     data_input = st.text_area("Enter Data (JSON format for POST/PUT)", "{}")
+                #     try:
+                #         data = json.loads(data_input)
+                #         if not data:
+                #             execute_request = False
+                #             st.warning("Data cannot be empty if included.")
+                #     except json.JSONDecodeError as e:
+                #         st.error(f"Invalid JSON format for Data: {e}")
                 
                 st.subheader(f"Function: {tool_name}")
                 st.json(meta_data)
                 
                 if st.button(f"Execute {tool_name}"):
+                    # print("data : ",data)
                     result = function(**tool_arguments)
                     st.success(f"Executed {tool_name} successfully")
                 else:

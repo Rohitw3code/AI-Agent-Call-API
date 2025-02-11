@@ -6,12 +6,14 @@ from custom_tool.tool import Tool
 class ConnectionMetabody:
     export_metabody_data = {
         'data': True,
+        'param':False,
         'url': "/connectionMetabody/export",
         'req_type': 'POST'
     }
 
     convert_metabody_data = {
         'data': True,
+        'param':False,
         'url': "/connectionMetabody/convert",
         'req_type': 'POST'
     }
