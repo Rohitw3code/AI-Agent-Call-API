@@ -9,7 +9,6 @@ app = Flask(__name__)
 CORS(app)
 client = OpenAI()
 
-# Mapping tools to functions
 function_map = {
     "import_config": [ConfigArchive, ConfigArchive.import_config, ConfigArchive.import_config_data],
     "export_config": [ConfigArchive, ConfigArchive.export_config, ConfigArchive.export_config_data],
