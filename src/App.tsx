@@ -84,9 +84,11 @@ function App() {
         }),
       });
 
-      if (!res.ok) throw new Error('Failed to get response');
+      if (!res.ok){
+        console.log("query : ",query);
+        throw new Error('Failed to get response');
+      }       
       const data: AskResponse = await res.json();
-      
       const botMessage: Message = {
         type: 'bot',
         content: data.success ? 'I found a relevant tool that might help:' : `Error: ${data.error || 'An unexpected error occurred'}`,

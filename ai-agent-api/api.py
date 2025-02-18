@@ -1,72 +1,86 @@
 from flask import Flask, request, jsonify
+from langchain_openai import ChatOpenAI
+from tool_mapping import TOOL_MAPPING
+from collection.ConfigArchive import config_archive_tools
+from collection.ConnectionMetadata import connection_meta_tools
 from flask_cors import CORS
-import json
-from openai import OpenAI
-from collection.ConfigArchive import ConfigArchive, config_archive_tools
-from collection.ConnectionMetadata import ConnectionMetabody, connection_meta_tools
+
 
 app = Flask(__name__)
 CORS(app)
-client = OpenAI()
 
-function_map = {
-    "import_config": [ConfigArchive, ConfigArchive.import_config, ConfigArchive.import_config_data],
-    "export_config": [ConfigArchive, ConfigArchive.export_config, ConfigArchive.export_config_data],
-    "convert_metabody": [ConnectionMetabody, ConnectionMetabody.convert_metabody, ConnectionMetabody.convert_metabody_data],
-    "export_metabody": [ConnectionMetabody, ConnectionMetabody.export_metabody, ConnectionMetabody.export_metabody_data]
-}
+# Initialize the OpenAI GPT-4 model
+model = ChatOpenAI(model="gpt-4")
 
-# Collect tools
-tools = []
-tools.extend(config_archive_tools)
-tools.extend(connection_meta_tools)
+# Bind tools to the model
+all_tools = []
+all_tools.extend(config_archive_tools)
+all_tools.extend(connection_meta_tools)
 
-def ask_gpt(msg):
-    messages = [{"role": "user", "content": msg}]
-    
-    completion = client.chat.completions.create(
-        model="gpt-4o",
-        messages=messages,
-        tools=tools,
-    )    
-    tool_call = completion.choices[0].message.tool_calls
-
-    if tool_call:
-        tool_name = tool_call[0].function.name
-        meta_data = function_map.get(tool_name, [None, None, None])[2]
-        return {"tool_name": tool_name, "meta_data": meta_data,"success":True}
-    
-    return {"error": "No tool call found","success":True}
+model = model.bind_tools(all_tools)
 
 @app.route('/ask_gpt', methods=['POST'])
-def handle_ask_gpt():
-    data = request.get_json()
-    user_query = data.get("query", "")
-    response = ask_gpt(user_query)
-    return jsonify(response)
+def ask_gpt():
+    """Processes a query through GPT-4 and returns the function name and metadata."""
+
+    print("/ask-gpt called")
+    try:
+        data = request.json
+        query = data.get("query", "")
+
+        print("query : ",query)
+
+        if not query:
+            return jsonify({"success": False, "error": "Query is required"}), 400
+
+        # Invoke the model with the query
+        response = model.invoke(query)
+        tool_calls = response.additional_kwargs.get("tool_calls", [])
+        print("tool calls : ",tool_calls)
+
+        if tool_calls == []:
+            return jsonify({"success": False, "error": "improve your query no tool found"}), 400
+
+        tool_name = tool_calls[0]['function']['name']
+
+        # Retrieve metadata only (no function execution)
+        if tool_name in TOOL_MAPPING:
+            _, meta_data = TOOL_MAPPING[tool_name]
+            return jsonify({"tool_name": tool_name, "meta_data": meta_data, "success": True})
+
+        return jsonify({"success": False, "error": "No matching tool found"}), 400
+
+    except Exception as e:
+        print("errorr : ",e)
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 @app.route('/execute_tool', methods=['POST'])
 def execute_tool():
-    data = request.get_json()
-    tool_name = data.get("tool_name")
-    tool_arguments = data.get("arguments", {})
-    
-    if isinstance(tool_arguments, str):
-        try:
-            tool_arguments = json.loads(tool_arguments)
-        except json.JSONDecodeError:
-            return jsonify({"error": "Invalid JSON format in arguments","success":False})
-    
-    if not isinstance(tool_arguments, dict):
-        return jsonify({"error": "Arguments must be a dictionary","success":False})
-    
-    if tool_name in function_map:
-        class_name, function, _ = function_map[tool_name]            
-        print("tool argument : ",tool_arguments)
-        result = function(**tool_arguments)
-        return jsonify({"result": result,"success":False})
-    
-    return jsonify({"error": "Invalid tool name","success":False})
+    """Executes a tool based on the provided tool name and arguments."""
+    try:
+        data = request.get_json()
+        tool_name = data.get("tool_name")
+        tool_arguments = data.get("arguments", {})
+
+        if not tool_name:
+            return jsonify({"success": False, "error": "Tool name is required"}), 400
+
+        if tool_name in TOOL_MAPPING:
+            function_, _ = TOOL_MAPPING[tool_name]
+            try:
+                result = function_(tool_arguments.get("param", {}), tool_arguments.get("data", {}))
+                if 'error' in result:
+                    return jsonify({"result": result['error'], "success": False})
+                return jsonify({"result": result, "success": True})
+            except Exception as e:
+                return jsonify({"result": str(e), "success": False})
+        
+        return jsonify({"success": False, "result": "No matching tool found"}), 400
+
+    except Exception as e:
+        return jsonify({"success": False, "result": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

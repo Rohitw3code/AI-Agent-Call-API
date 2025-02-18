@@ -1,32 +1,39 @@
-import streamlit as st
+import logging
+import requests
+import json
 from credentials import HOST, USERNAME, PASSWORD, BASE_URL, HEADERS
 from typing import Dict
-import requests
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-
-def endpoint_request(url='', param={}, data={}, req_type='GET'):  
-    url = BASE_URL + url
-
-    print("Endpoint URL:", url)
-    # print("Data:", data)
-    # print("Param:", param)
+def execute_request(url: str, param: Dict, body: Dict, req_type: str):
+    """Handles API requests with better error handling and logging."""
+    full_url = BASE_URL + url
+    headers = HEADERS
+    auth = (USERNAME, PASSWORD)
 
     try:
-        if req_type == 'GET':
-            response = requests.get(url, params=param, headers=HEADERS, auth=(USERNAME, PASSWORD), verify=False)
-        elif req_type == 'POST':
-            response = requests.post(url, json=data, headers=HEADERS, auth=(USERNAME, PASSWORD), verify=False)
-        elif req_type == 'PUT':
-            response = requests.put(url, json=data, headers=HEADERS, auth=(USERNAME, PASSWORD), verify=False)
-        elif req_type == 'DELETE':
-            response = requests.delete(url, params=param, headers=HEADERS, auth=(USERNAME, PASSWORD), verify=False)
-        else:
-            error_msg = "ERROR: Invalid request type"
-            return error_msg
-        
+        logging.info(f"Calling API: {full_url} | Type: {req_type} | Params: {param} | Body: {body}")
+
+        response = requests.request(
+            method=req_type,
+            url=full_url,
+            params=param if req_type in ["GET", "DELETE"] else None,
+            json=body if req_type in ["POST", "PUT"] else None,
+            headers=headers,
+            auth=auth,
+            verify=False
+        )
+
         response.raise_for_status()
+        logging.info(f"Response: {response.status_code} | {response.text[:100]}")
         return response.json()
+
     except requests.exceptions.RequestException as e:
-        error_msg = f"ERROR: {str(e)}"
-        return error_msg
+        logging.error(f"API Request Failed: {str(e)}")
+        return {"error": str(e)}
+
+def endpoint_request(url: str = '', param: Dict = {}, body: Dict = {}, req_type: str = 'GET'):
+    """Wrapper function to execute API requests."""
+    return execute_request(url, param, body, req_type)
