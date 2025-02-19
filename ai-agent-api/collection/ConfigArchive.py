@@ -18,6 +18,7 @@ export_config_data = {
 @tool
 def import_config():
     "import config endpoint"
+    print("called import config endpoint ", "=" * 10)  # Fixed string multiplication
     return endpoint_request(
         url=import_config_data['url'],
         param=import_config_data['param'],
@@ -32,5 +33,4 @@ def export_config():
         req_type=export_config_data['req_type']
     )
 
-
-config_archive_tools = [export_config,import_config]
+config_archive_tools = [export_config, import_config]
