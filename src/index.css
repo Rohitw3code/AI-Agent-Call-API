@@ -2,71 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --gradient-start: #4F46E5;
+    --gradient-end: #3B82F6;
+  }
+}
+
+body {
+  @apply bg-gray-50;
+}
+
+.message-bubble {
+  @apply relative;
+}
+
+.message-bubble::before {
+  content: '';
+  @apply absolute top-4 w-0 h-0 border-8 border-transparent;
+}
+
+.message-bubble.user::before {
+  @apply -right-4 border-l-blue-600;
+}
+
+.message-bubble.bot::before {
+  @apply -left-4;
+}
+
+.message-bubble.bot::before {
+  border-right-color: theme('colors.white');
+}
+
+.message-bubble.error::before {
+  border-right-color: theme('colors.red.50');
+}
+
+.message-bubble.bot.tool::before {
+  border-right-color: theme('colors.indigo.50');
+}
+
 .gradient-bg {
-  background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
 }
 
-.message-animation {
-  animation: slideIn 0.3s ease-out;
+.typing-indicator span {
+  @apply w-2 h-2 rounded-full bg-blue-600 inline-block mx-0.5;
+  animation: bounce 1.4s infinite ease-in-out both;
 }
 
-.fade-in {
-  animation: fadeIn 0.3s ease-out;
+.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+.message-enter {
+  opacity: 0;
+  transform: translateY(20px);
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+.message-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+.message-exit {
+  opacity: 1;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 3px;
-}
-
-.shake {
-  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-}
-
-@keyframes shake {
-  10%, 90% {
-    transform: translate3d(-1px, 0, 0);
-  }
-  20%, 80% {
-    transform: translate3d(2px, 0, 0);
-  }
-  30%, 50%, 70% {
-    transform: translate3d(-2px, 0, 0);
-  }
-  40%, 60% {
-    transform: translate3d(2px, 0, 0);
-  }
+.message-exit-active {
+  opacity: 0;
+  transition: opacity 300ms;
 }

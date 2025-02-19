@@ -32,7 +32,7 @@ def ask_gpt():
     query = data.get("query", "").strip()
     
     if not query:
-        return jsonify({"success": False, "error": "Query is required"}), 400
+        return jsonify({"type": "error", "error": "Query is required"}), 400
 
     print("/ask_gpt called with query:", query)
     
@@ -46,16 +46,16 @@ def ask_gpt():
         # Generate response based on memory and query if no tool is found
         final_response = response.content
         print("Generated response:", final_response)
-        return jsonify({"error": final_response, "success": False})
+        return jsonify({"type":"ai-response","ai": final_response})
     
     tool_name = tool_calls[0]['function']['name']
     if tool_name in TOOL_MAPPING:
         _, meta_data = TOOL_MAPPING[tool_name]
         success_message = f"{tool_name} function name received as result"
         print("Success message:", success_message)
-        return jsonify({"tool_name": tool_name, "meta_data": meta_data, "success": True})
+        return jsonify({"tool_name": tool_name, "meta_data": meta_data, "type":"tool"})
     
-    return jsonify({"success": False, "error": "Tool not found in mapping"}), 500
+    return jsonify({"type": "error", "error": "Tool not found in mapping"}), 500
 
 @app.route('/execute_tool', methods=['POST'])
 def execute_tool():
@@ -65,7 +65,7 @@ def execute_tool():
     tool_arguments = data.get("arguments", {})
     
     if not tool_name:
-        return jsonify({"success": False, "error": "Tool name is required"}), 400
+        return jsonify({"type": "error", "error": "Tool name is required"}), 400
     
     print("/execute_tool called for:", tool_name)
     messages = get_conversation_context() + [HumanMessage(content=tool_name)]
@@ -92,7 +92,7 @@ def execute_tool():
     final_response = "\n".join(tool_responses)
     memory.save_context({"input": tool_name}, {"output": final_response})
     
-    return jsonify({"result": final_response, "success": True if tool_responses else False})
+    return jsonify({"type":"result","result": final_response, "success": True if tool_responses else False})
 
 if __name__ == '__main__':
     app.run(debug=True)
