@@ -37,6 +37,7 @@ def process_query(query):
         if func_name in TOOL_MAPPING:
             try:
                 tool_func = TOOL_MAPPING[func_name][0]
+                print("tool_func : ",tool_func)
                 # Proper invocation with arguments
                 result = tool_func.invoke(input=args)
                 print("result : ", result)
