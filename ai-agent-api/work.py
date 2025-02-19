@@ -12,8 +12,8 @@ app = Flask(__name__)
 CORS(app)
 
 # Initialize model and tools
-all_tools = config_archive_tools + connection_meta_tools
 llm = ChatOpenAI(model="gpt-4", temperature=0, max_tokens=1000)
+all_tools = config_archive_tools + connection_meta_tools
 llm_with_tools = llm.bind_tools(all_tools)
 
 # Initialize conversation memory
@@ -27,29 +27,32 @@ def get_conversation_context():
 
 @app.route('/ask_gpt', methods=['POST'])
 def ask_gpt():
-    """Processes a query through GPT-4 and returns the function name and metadata."""
+    """Processes a query through GPT-4 and returns a response."""
     data = request.json
     query = data.get("query", "").strip()
     
     if not query:
         return jsonify({"success": False, "error": "Query is required"}), 400
 
-    print("/ask-gpt called with query:", query)
+    print("/ask_gpt called with query:", query)
     
     messages = get_conversation_context() + [HumanMessage(content=query)]
     response = llm_with_tools.invoke(messages)
     
     tool_calls = response.additional_kwargs.get("tool_calls", [])
+    print("tool_calls:", tool_calls)
+    
     if not tool_calls:
-        error_message = f"No tool found for query: {query}"
-        memory.save_context({"input": query}, {"output": error_message})
-        return jsonify({"success": False, "error": error_message}), 500
-
+        # Generate response based on memory and query if no tool is found
+        final_response = response.content
+        print("Generated response:", final_response)
+        return jsonify({"error": final_response, "success": False})
+    
     tool_name = tool_calls[0]['function']['name']
     if tool_name in TOOL_MAPPING:
         _, meta_data = TOOL_MAPPING[tool_name]
         success_message = f"{tool_name} function name received as result"
-        memory.save_context({"input": query}, {"output": success_message})
+        print("Success message:", success_message)
         return jsonify({"tool_name": tool_name, "meta_data": meta_data, "success": True})
     
     return jsonify({"success": False, "error": "Tool not found in mapping"}), 500
@@ -68,20 +71,28 @@ def execute_tool():
     messages = get_conversation_context() + [HumanMessage(content=tool_name)]
     response = llm_with_tools.invoke(messages)
     
+    tool_responses = []
+    
     if tool_name in TOOL_MAPPING:
         function_, _ = TOOL_MAPPING[tool_name]
         try:
+            print("Invoking tool with arguments:", tool_arguments)
             result = function_.invoke(input=tool_arguments)
-            output_message = result.get("error", result)
-            memory.save_context({"input": tool_name}, {"output": output_message})
-            return jsonify({"result": f"{tool_name} executed. Result: {output_message}", "success": True})
+            print("Tool execution result:", result)
+            tool_responses.append(f"{tool_name} executed. Result: {result}")
         except Exception as e:
-            error_message = str(e)
+            error_message = f"Error executing {tool_name}: {str(e)}"
+            print(error_message)
+            tool_responses.append(error_message)
     else:
         error_message = "No matching tool found"
+        print(error_message)
+        tool_responses.append(error_message)
     
-    memory.save_context({"input": tool_name}, {"output": error_message})
-    return jsonify({"result": f"{tool_name} executed. Result: {error_message}", "success": False}), 500
+    final_response = "\n".join(tool_responses)
+    memory.save_context({"input": tool_name}, {"output": final_response})
+    
+    return jsonify({"result": final_response, "success": True if tool_responses else False})
 
 if __name__ == '__main__':
     app.run(debug=True)
