@@ -1,52 +1,44 @@
-from collection.ConfigArchive import import_config, export_config, get_current_time, get_user, get_posts, get_comments, get_likes, get_notifications, import_config_data, export_config_data
+from collection.ConfigArchive import (
+    import_config, export_config, import_config_data, export_config_data
+)
+from collection.ConnectionMetadata import (
+    convert_metabody, export_metabody, convert_metabody_data, export_metabody_data
+)
+from collection.config_tools import (
+    get_sp_connections, create_sp_connections, get_sp_connection_by_id, update_sp_connection,
+    delete_sp_connection, get_signing_settings, update_signing_settings, add_sp_connection_cert,
+    get_sp_connection_certs, update_sp_connection_certs, get_sp_connection_decryption_keys,
+    update_sp_connection_decryption_keys
+)
+from collection.endpoint_data import (
+    get_sp_connections_data, create_sp_connections_data, get_sp_connection_by_id_data, update_sp_connection_data,
+    delete_sp_connection_data, get_signing_settings_data, update_signing_settings_data, add_sp_connection_cert_data,
+    get_sp_connection_certs_data, update_sp_connection_certs_data, get_sp_connection_decryption_keys_data,
+    update_sp_connection_decryption_keys_data
+)
 
 TOOL_MAPPING = {
-    "import_config": (import_config, {
-        "url": "/configArchive/import",
-        "param": {"forceImport": True},
-        "req_type": "POST",
-        "data": {}
-    }),
-    "export_config": (export_config, {
-        "url": "/configArchive/export",
-        "req_type": "GET",
-        "param": {},
-        "data": {}
-    }),
-    "get_current_time": (get_current_time, {
-        "url": "/time/current",
-        "req_type": "GET",
-        "param": {},
-        "data": {}
-    }),
-    "get_user": (get_user, {
-        "url": "/data/user",
-        "req_type": "GET",
-        "param": {},
-        "data": {}
-    }),
-    "get_posts": (get_posts, {
-        "url": "/data/posts",
-        "req_type": "GET",
-        "param": {},
-        "data": {}
-    }),
-    "get_comments": (get_comments, {
-        "url": "/data/comments",
-        "req_type": "GET",
-        "param": {},
-        "data": {}
-    }),
-    "get_likes": (get_likes, {
-        "url": "/data/likes",
-        "req_type": "GET",
-        "param": {},
-        "data": {}
-    }),
-    "get_notifications": (get_notifications, {
-        "url": "/data/notifications",
-        "req_type": "GET",
-        "param": {},
-        "data": {}
-    })
+    # Connection Metadata Tools
+    "convert_metabody": (convert_metabody, convert_metabody_data),
+    "export_metabody": (export_metabody, export_metabody_data),
+
+    # Service Provider Connection Tools
+    "get_sp_connections": (get_sp_connections, get_sp_connections_data),
+    "create_sp_connections": (create_sp_connections, create_sp_connections_data),
+    "get_sp_connection_by_id": (get_sp_connection_by_id, get_sp_connection_by_id_data),
+    "update_sp_connection": (update_sp_connection, update_sp_connection_data),
+    "delete_sp_connection": (delete_sp_connection, delete_sp_connection_data),
+    
+    # Signing Settings
+    "get_signing_settings": (get_signing_settings, get_signing_settings_data),
+    "update_signing_settings": (update_signing_settings, update_signing_settings_data),
+
+    # Certificates
+    "add_sp_connection_cert": (add_sp_connection_cert, add_sp_connection_cert_data),
+    "get_sp_connection_certs": (get_sp_connection_certs, get_sp_connection_certs_data),
+    "update_sp_connection_certs": (update_sp_connection_certs, update_sp_connection_certs_data),
+
+    # Decryption Keys
+    "get_sp_connection_decryption_keys": (get_sp_connection_decryption_keys, get_sp_connection_decryption_keys_data),
+    "update_sp_connection_decryption_keys": (update_sp_connection_decryption_keys, update_sp_connection_decryption_keys_data)
 }

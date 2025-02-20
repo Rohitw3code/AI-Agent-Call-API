@@ -7,6 +7,7 @@ from langchain.chains.conversation.memory import ConversationSummaryMemory
 from tool_mapping import TOOL_MAPPING
 from collection.ConfigArchive import config_archive_tools
 from collection.ConnectionMetadata import connection_meta_tools
+from collection.config_tools import idp_sp_tools
 import json
 
 app = FastAPI()
@@ -23,7 +24,8 @@ app.add_middleware(
 
 # Initialize model and tools
 llm = ChatOpenAI(model="gpt-4", temperature=0, max_tokens=1000)
-all_tools = config_archive_tools + connection_meta_tools
+# all_tools = config_archive_tools + connection_meta_tools
+all_tools = idp_sp_tools.copy()
 llm_with_tools = llm.bind_tools(all_tools)
 
 # Initialize conversation memory
