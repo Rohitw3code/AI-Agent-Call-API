@@ -73,6 +73,7 @@ def execute_tool():
     
     tool_responses = []
     
+    
     if tool_name in TOOL_MAPPING:
         function_, _ = TOOL_MAPPING[tool_name]
         try:
