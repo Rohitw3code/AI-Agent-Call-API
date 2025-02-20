@@ -9,7 +9,8 @@ def get_sp_connections():
     return endpoint_request(
         url=get_sp_connections_data['url'],
         req_type=get_sp_connections_data['req_type'],
-        param=get_sp_connections_data['param']
+        param=get_sp_connections_data['param'],
+        data=get_sp_connections_data['data']
     )
 
 @tool
@@ -30,7 +31,8 @@ def get_sp_connection_by_id():
     return endpoint_request(
         url=get_sp_connection_by_id_data['url'].format(id=1),
         req_type=get_sp_connection_by_id_data['req_type'],
-        param=get_sp_connection_by_id_data['param']
+        param=get_sp_connection_by_id_data['param'],
+        data=get_sp_connection_by_id_data['data']
     )
 
 @tool
@@ -51,7 +53,8 @@ def delete_sp_connection():
     return endpoint_request(
         url=delete_sp_connection_data['url'].format(id=1),
         req_type=delete_sp_connection_data['req_type'],
-        param=delete_sp_connection_data['param']
+        param=delete_sp_connection_data['param'],
+        data=delete_sp_connection_data['data']
     )
 
 @tool
@@ -61,7 +64,8 @@ def get_signing_settings():
     return endpoint_request(
         url=get_signing_settings_data['url'].format(id=1),
         req_type=get_signing_settings_data['req_type'],
-        param=get_signing_settings_data['param']
+        param=get_signing_settings_data['param'],
+        data=get_signing_settings_data['data']
     )
 
 @tool
@@ -72,7 +76,7 @@ def update_signing_settings(data: dict):
         url=update_signing_settings_data['url'].format(id=1),
         req_type=update_signing_settings_data['req_type'],
         param=update_signing_settings_data['param'],
-        data=data
+        data=update_signing_settings_data['data']
     )
 
 @tool
@@ -83,7 +87,7 @@ def add_sp_connection_cert(data: dict):
         url=add_sp_connection_cert_data['url'].format(id=1),
         req_type=add_sp_connection_cert_data['req_type'],
         param=add_sp_connection_cert_data['param'],
-        data=data
+        data=add_sp_connection_cert_data['data']
     )
 
 @tool
@@ -93,7 +97,8 @@ def get_sp_connection_certs():
     return endpoint_request(
         url=get_sp_connection_certs_data['url'].format(id=1),
         req_type=get_sp_connection_certs_data['req_type'],
-        param=get_sp_connection_certs_data['param']
+        param=get_sp_connection_certs_data['param'],
+        data=get_sp_connection_certs_data['data']
     )
 
 @tool
@@ -104,7 +109,7 @@ def update_sp_connection_certs(data: dict):
         url=update_sp_connection_certs_data['url'].format(id=1),
         req_type=update_sp_connection_certs_data['req_type'],
         param=update_sp_connection_certs_data['param'],
-        data=data
+        data=update_sp_connection_certs_data['data']
     )
 
 @tool
@@ -114,7 +119,8 @@ def get_sp_connection_decryption_keys():
     return endpoint_request(
         url=get_sp_connection_decryption_keys_data['url'].format(id=1),
         req_type=get_sp_connection_decryption_keys_data['req_type'],
-        param=get_sp_connection_decryption_keys_data['param']
+        param=get_sp_connection_decryption_keys_data['param'],
+        data=get_sp_connection_decryption_keys_data['data']
     )
 
 @tool
@@ -125,7 +131,7 @@ def update_sp_connection_decryption_keys(data: dict):
         url=update_sp_connection_decryption_keys_data['url'].format(id=1),
         req_type=update_sp_connection_decryption_keys_data['req_type'],
         param=update_sp_connection_decryption_keys_data['param'],
-        data=data
+        data=update_sp_connection_decryption_keys_data['data']
     )
 
 # Consolidated list of all tools
