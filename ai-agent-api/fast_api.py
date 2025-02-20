@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.chains.conversation.memory import ConversationSummaryMemory
@@ -8,8 +9,17 @@ from collection.ConfigArchive import config_archive_tools
 from collection.ConnectionMetadata import connection_meta_tools
 import json
 
-app = Flask(__name__)
-CORS(app)
+app = FastAPI()
+
+# uvicorn fast_api:app --host 0.0.0.0 --port 5000 --reload 
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"]
+)
 
 # Initialize model and tools
 llm = ChatOpenAI(model="gpt-4", temperature=0, max_tokens=1000)
@@ -19,23 +29,27 @@ llm_with_tools = llm.bind_tools(all_tools)
 # Initialize conversation memory
 memory = ConversationSummaryMemory(llm=llm)
 
+class QueryRequest(BaseModel):
+    query: str
+
+class ToolExecutionRequest(BaseModel):
+    tool_name: str
+    arguments: dict = {}
+
 def get_conversation_context():
     """Retrieve and format conversation history."""
     history = memory.load_memory_variables({}).get('history', '')
     messages = [SystemMessage(content=f"Conversation context: {history}")] if history else []
     return messages
 
-@app.route('/ask_gpt', methods=['POST'])
-def ask_gpt():
+@app.post("/ask_gpt")
+async def ask_gpt(request: QueryRequest):
     """Processes a query through GPT-4 and returns a response."""
-    data = request.json
-    query = data.get("query", "").strip()
-    
+    query = request.query.strip()
     if not query:
-        return jsonify({"type": "error", "error": "Query is required"}), 400
-
-    print("/ask_gpt called with query:", query)
+        raise HTTPException(status_code=400, detail="Query is required")
     
+    print("/ask_gpt called with query:", query)
     messages = get_conversation_context() + [HumanMessage(content=query)]
     response = llm_with_tools.invoke(messages)
     
@@ -43,37 +57,35 @@ def ask_gpt():
     print("tool_calls:", tool_calls)
     
     if not tool_calls:
-        # Generate response based on memory and query if no tool is found
         final_response = response.content
         print("Generated response:", final_response)
-        return jsonify({"type":"ai-response","ai": final_response})
+        return {"type": "ai-response", "ai": final_response}
     
     tool_name = tool_calls[0]['function']['name']
     if tool_name in TOOL_MAPPING:
         _, meta_data = TOOL_MAPPING[tool_name]
         success_message = f"{tool_name} function name received as result"
         print("Success message:", success_message)
-        return jsonify({"tool_name": tool_name, "meta_data": meta_data, "type":"tool"})
+        return {"tool_name": tool_name, "meta_data": meta_data, "type": "tool"}
     
-    return jsonify({"type": "error", "error": "Tool not found in mapping"}), 500
+    raise HTTPException(status_code=500, detail="Tool not found in mapping")
 
-@app.route('/execute_tool', methods=['POST'])
-def execute_tool():
+@app.post("/execute_tool")
+async def execute_tool(request: ToolExecutionRequest):
     """Executes a tool based on the provided tool name and arguments."""
-    data = request.get_json()
-    tool_name = data.get("tool_name", "").strip()
-    tool_arguments = data.get("arguments", {})
+    tool_name = request.tool_name.strip()
+    tool_arguments = request.arguments
     
     if not tool_name:
-        return jsonify({"type": "error", "error": "Tool name is required"}), 400
+        raise HTTPException(status_code=400, detail="Tool name is required")
     
     print("/execute_tool called for:", tool_name)
     messages = get_conversation_context() + [HumanMessage(content=tool_name)]
     response = llm_with_tools.invoke(messages)
     
     tool_responses = []
-    
     success = True
+    
     if tool_name in TOOL_MAPPING:
         function_, _ = TOOL_MAPPING[tool_name]
         try:
@@ -96,10 +108,5 @@ def execute_tool():
     
     final_response = "\n".join(tool_responses)
     memory.save_context({"input": tool_name}, {"output": final_response})
-
-
     
-    return jsonify({"type":"result","result": final_response, "success": success})
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    return {"type": "result", "result": final_response, "success": success}
