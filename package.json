@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "start": "concurrently \"npm run dev\" \"cd ./ai-agent-api && python api.py\""
+    "start": "concurrently \"npm run dev\" \"cd ./ai-agent-api && python fast_api.py\""
   },
   "dependencies": {
     "lucide-react": "^0.344.0",

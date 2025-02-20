@@ -25,9 +25,12 @@ def get_conversation_context():
     messages = [SystemMessage(content=f"Conversation context: {history}")] if history else []
     return messages
 
+query = ""
+
 @app.route('/ask_gpt', methods=['POST'])
 def ask_gpt():
     """Processes a query through GPT-4 and returns a response."""
+    global query
     data = request.json
     query = data.get("query", "").strip()
     
@@ -60,6 +63,7 @@ def ask_gpt():
 @app.route('/execute_tool', methods=['POST'])
 def execute_tool():
     """Executes a tool based on the provided tool name and arguments."""
+    global query
     data = request.get_json()
     tool_name = data.get("tool_name", "").strip()
     tool_arguments = data.get("arguments", {})
@@ -95,10 +99,8 @@ def execute_tool():
         tool_responses.append(error_message)
     
     final_response = "\n".join(tool_responses)
-    memory.save_context({"input": tool_name}, {"output": final_response})
+    memory.save_context({"input": "query : "+query}, {"output": final_response})
 
-
-    
     return jsonify({"type":"result","result": final_response, "success": success})
 
 if __name__ == '__main__':

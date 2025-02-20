@@ -32,6 +32,8 @@ memory = ConversationSummaryMemory(llm=llm)
 class QueryRequest(BaseModel):
     query: str
 
+query = ""
+
 class ToolExecutionRequest(BaseModel):
     tool_name: str
     arguments: dict = {}
@@ -45,6 +47,7 @@ def get_conversation_context():
 @app.post("/ask_gpt")
 async def ask_gpt(request: QueryRequest):
     """Processes a query through GPT-4 and returns a response."""
+    global query
     query = request.query.strip()
     if not query:
         raise HTTPException(status_code=400, detail="Query is required")
@@ -73,6 +76,7 @@ async def ask_gpt(request: QueryRequest):
 @app.post("/execute_tool")
 async def execute_tool(request: ToolExecutionRequest):
     """Executes a tool based on the provided tool name and arguments."""
+    global query
     tool_name = request.tool_name.strip()
     tool_arguments = request.arguments
     
@@ -107,6 +111,6 @@ async def execute_tool(request: ToolExecutionRequest):
         tool_responses.append(error_message)
     
     final_response = "\n".join(tool_responses)
-    memory.save_context({"input": tool_name}, {"output": final_response})
+    memory.save_context({"input": "query : "+query}, {"output": final_response})
     
     return {"type": "result", "result": final_response, "success": success}
