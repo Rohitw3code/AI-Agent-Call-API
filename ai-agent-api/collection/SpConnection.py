@@ -5,7 +5,7 @@ from .endpoint_data import *
 @tool
 def get_sp_connections():
     "Fetch service provider connections"
-    print("called get_sp_connections endpoint ", "=" * 10)
+    print("called get_sp_connections endpoint")
     return endpoint_request(
         url=get_sp_connections_data['url'],
         req_type=get_sp_connections_data['req_type'],
@@ -16,7 +16,7 @@ def get_sp_connections():
 @tool
 def create_sp_connections():
     "Create service provider connection"
-    print("called create_sp_connections endpoint ", "=" * 10)
+    print("called create_sp_connections endpoint")
     return endpoint_request(
         url=create_sp_connections_data['url'],
         req_type=create_sp_connections_data['req_type'],
@@ -27,7 +27,7 @@ def create_sp_connections():
 @tool
 def get_sp_connection_by_id():
     "Fetch a specific service provider connection by ID"
-    print("called get_sp_connection_by_id endpoint ", "=" * 10)
+    print("called get_sp_connection_by_id endpoint")
     return endpoint_request(
         url=get_sp_connection_by_id_data['url'].format(id=1),
         req_type=get_sp_connection_by_id_data['req_type'],
@@ -38,7 +38,7 @@ def get_sp_connection_by_id():
 @tool
 def update_sp_connection():
     "Update a specific service provider connection by ID"
-    print("called update_sp_connection endpoint ", "=" * 10)
+    print("called update_sp_connection endpoint")
     return endpoint_request(
         url=update_sp_connection_data['url'].format(id=1),
         req_type=update_sp_connection_data['req_type'],
@@ -49,7 +49,7 @@ def update_sp_connection():
 @tool
 def delete_sp_connection():
     "Delete a specific service provider connection by ID"
-    print("called delete_sp_connection endpoint ", "=" * 10)
+    print("called delete_sp_connection endpoint ")
     return endpoint_request(
         url=delete_sp_connection_data['url'].format(id=1),
         req_type=delete_sp_connection_data['req_type'],
@@ -60,7 +60,7 @@ def delete_sp_connection():
 @tool
 def get_signing_settings():
     "Fetch signing settings for a specific service provider connection by ID"
-    print("called get_signing_settings endpoint ", "=" * 10)
+    print("called get_signing_settings endpoint")
     return endpoint_request(
         url=get_signing_settings_data['url'].format(id=1),
         req_type=get_signing_settings_data['req_type'],
@@ -71,7 +71,7 @@ def get_signing_settings():
 @tool
 def update_signing_settings(data: dict):
     "Update signing settings for a specific service provider connection by ID"
-    print("called update_signing_settings endpoint ", "=" * 10)
+    print("called update_signing_settings endpoint ")
     return endpoint_request(
         url=update_signing_settings_data['url'].format(id=1),
         req_type=update_signing_settings_data['req_type'],
@@ -82,7 +82,7 @@ def update_signing_settings(data: dict):
 @tool
 def add_sp_connection_cert(data: dict):
     "Add a certificate to a specific service provider connection by ID"
-    print("called add_sp_connection_cert endpoint ", "=" * 10)
+    print("called add_sp_connection_cert endpoint")
     return endpoint_request(
         url=add_sp_connection_cert_data['url'].format(id=1),
         req_type=add_sp_connection_cert_data['req_type'],
@@ -93,7 +93,7 @@ def add_sp_connection_cert(data: dict):
 @tool
 def get_sp_connection_certs():
     "Fetch certificates for a specific service provider connection by ID"
-    print("called get_sp_connection_certs endpoint ", "=" * 10)
+    print("called get_sp_connection_certs endpoint")
     return endpoint_request(
         url=get_sp_connection_certs_data['url'].format(id=1),
         req_type=get_sp_connection_certs_data['req_type'],
@@ -104,7 +104,7 @@ def get_sp_connection_certs():
 @tool
 def update_sp_connection_certs(data: dict):
     "Update certificates for a specific service provider connection by ID"
-    print("called update_sp_connection_certs endpoint ", "=" * 10)
+    print("called update_sp_connection_certs endpoint")
     return endpoint_request(
         url=update_sp_connection_certs_data['url'].format(id=1),
         req_type=update_sp_connection_certs_data['req_type'],
@@ -115,7 +115,7 @@ def update_sp_connection_certs(data: dict):
 @tool
 def get_sp_connection_decryption_keys():
     "Fetch decryption keys for a specific service provider connection by ID"
-    print("called get_sp_connection_decryption_keys endpoint ", "=" * 10)
+    print("called get_sp_connection_decryption_keys endpoint")
     return endpoint_request(
         url=get_sp_connection_decryption_keys_data['url'].format(id=1),
         req_type=get_sp_connection_decryption_keys_data['req_type'],
@@ -126,7 +126,8 @@ def get_sp_connection_decryption_keys():
 @tool
 def update_sp_connection_decryption_keys(data: dict):
     "Update decryption keys for a specific service provider connection by ID"
-    print("called update_sp_connection_decryption_keys endpoint ", "=" * 10)
+    print("data value =>> ",data)
+    print("called update_sp_connection_decryption_keys endpoint")
     return endpoint_request(
         url=update_sp_connection_decryption_keys_data['url'].format(id=1),
         req_type=update_sp_connection_decryption_keys_data['req_type'],

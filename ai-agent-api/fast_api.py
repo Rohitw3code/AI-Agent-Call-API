@@ -5,9 +5,9 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.chains.conversation.memory import ConversationSummaryMemory
 from tool_mapping import TOOL_MAPPING
-from collection.ConfigArchive import config_archive_tools
 from collection.ConnectionMetadata import connection_meta_tools
-from collection.config_tools import idp_sp_tools
+from collection.configArchive import config_archive_tools
+from collection.SpConnection import idp_sp_tools
 import json
 
 app = FastAPI()
@@ -26,6 +26,8 @@ app.add_middleware(
 llm = ChatOpenAI(model="gpt-4", temperature=0, max_tokens=1000)
 # all_tools = config_archive_tools + connection_meta_tools
 all_tools = idp_sp_tools.copy()
+all_tools.extend(connection_meta_tools)
+all_tools.extend(config_archive_tools)
 llm_with_tools = llm.bind_tools(all_tools)
 
 # Initialize conversation memory
@@ -41,7 +43,7 @@ class ToolExecutionRequest(BaseModel):
     arguments: dict = {}
 
 def get_conversation_context():
-    """Retrieve and format conversation history."""
+    """Retrieve and format conversation history"""
     history = memory.load_memory_variables({}).get('history', '')
     messages = [SystemMessage(content=f"Conversation context: {history}")] if history else []
     return messages
@@ -58,7 +60,7 @@ async def ask_gpt(request: QueryRequest):
     messages = get_conversation_context() + [HumanMessage(content=query)]
     response = llm_with_tools.invoke(messages)
     
-    tool_calls = response.additional_kwargs.get("tool_calls", [])
+    tool_calls = response.additional_kwargs.get("tool_calls", [])    
     print("tool_calls:", tool_calls)
     
     if not tool_calls:
