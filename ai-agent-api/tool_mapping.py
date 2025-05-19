@@ -12,7 +12,7 @@ from collection.SpConnection import (
     update_sp_connection_decryption_keys_data
 )
 
-from collection.configArchive import config_archive_export,config_archive_import ,config_archive_export_data,config_archive_import_data
+from collection.ConfigArchive import config_archive_export,config_archive_import ,config_archive_export_data,config_archive_import_data
 from collection.ConnectionMetadata import convert_metabody,export_metabody,export_metabody_data,convert_metabody_data
 
 TOOL_MAPPING = {
