@@ -6,7 +6,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.chains.conversation.memory import ConversationSummaryMemory
 from tool_mapping import TOOL_MAPPING
 from collection.ConnectionMetadata import connection_meta_tools
-from collection.configArchive import config_archive_tools
+from collection.ConfigArchive import config_archive_tools
 from collection.SpConnection import idp_sp_tools
 import json
 
@@ -28,6 +28,7 @@ llm = ChatOpenAI(model="gpt-4", temperature=0, max_tokens=1000)
 all_tools = idp_sp_tools.copy()
 all_tools.extend(connection_meta_tools)
 all_tools.extend(config_archive_tools)
+
 llm_with_tools = llm.bind_tools(all_tools)
 
 # Initialize conversation memory
